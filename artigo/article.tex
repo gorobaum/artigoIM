@@ -27,6 +27,11 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage[]{graphicx}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{cite}
+
 
 \title{Comparação entre os metodos de registro Demons e Thin Plate Splines aplicados a imagens médicas} 
 
@@ -56,15 +61,15 @@
 %>>>> uncomment following to start page numbering at 301 
 %\setcounter{page}{301} 
  
-  \begin{document} 
-  \maketitle 
+\begin{document} 
+\maketitle 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \begin{abstract}
-O registro de imagens em tempo real é útil para auxiliar médicos em operações, fundindo em uma única informações
-sobre o estado atual do paciente e dados pré operatórios. Esse estudo tem como finalidade a avaliação de algoritmos 
-conhecidos na área de registro, o Demons e o ThinPlate Splines, e encontrar pontos em que sejam paralelizáveis, criando
-um algoritmo capaz de realizar o registro em tempo real.
+O registro de imagens é um passo muito utilizado dentro da área de visão computacional, ainda mais no processamento de imagens médicas.
+Usado para auxiliar o médico no processo cirúrgico retirando as deformações geradas pelos tecidos do corpo ou em estudos populacionais
+alinhando as imagens de vários indivíduos diferentes, retirando as diferenças morfológicas entre eles. Esse estudo tem como objetivo
+a avaliação e comparação de dois métodos conhecidos na literatura de registro médico, o Demons e o Thin Plate Splines.
 \end{abstract}
 
 %>>>> Include a list of keywords after the abstract 
@@ -75,14 +80,14 @@ um algoritmo capaz de realizar o registro em tempo real.
 \section{INTRODUÇÃO}
 \label{sec:intro}  % \label{} allows reference to this section
 
-O registro de imagens já é um problema muito bem firmado e com várias soluções para problemas como a junção de duas 
+O registro de imagens já é um problema muito bem firmado e com várias soluções para problemas\cite{brown1992survey} como a junção de duas
 imagens de um mesmo objeto ou cena que foram adquiridas em ângulos diferentes, ou a reversão de algum tipo de 
 distorção, natural ou não, que uma imagem possa vir a sofrer. Os algoritmo de registro são amplamente aplicados
 em várias áreas de pesquisa em visão computacional, como em Imagens Médicas, com o objetivo de reverter os
 movimentos naturais do corpo entre tomadas de imagens de um paciente, ou em Reconhecimento de Padrões, onde o
 registro é aplicado para unificar várias imagens obtidas de um satélite para formar um mapa por exemplo.
 
-Esse trabalho tem como foco a comparação dos métodos \textit{Demons} e \textit{Thin Plate Splines} (TPS) para recuperar
+Esse trabalho tem como foco a comparação dos métodos \textit{Demons}\cite{thirion1995fast} e \textit{Thin Plate Splines}\cite{goshtasby1988registration} (TPS) para recuperar
 deformações aplicadas a imagens médicas. Ambos são voltados para a recuperação de deformações não-rígidas, algo 
 extremamente comum em imagens médicas, o simples ato de respirar entre as tomadas de uma ressonância magnética gera
 uma deformação não-rígida na imagem final. 
@@ -94,8 +99,9 @@ em mais detalhes com relação a cada algoritmo, já que eles variam muito entre
 descoberta dos parâmetros utiliza pontos conhecidos como características, que mapeiam pontos nas duas imagens que
 tenham um grau de informação igual, mas como veremos adiante esse não é o caso do Demons.
 
-Na seção 2, Conceitos, cada método é apresentado. Na seção 3, Resultados, os métodos são comparados tanto em relação 
-aos seus resultados quanto as metodologias que aplicam para resolver o problema proposto.
+Na seção 2, Conceitos, cada método é apresentado. Na seção 3, Experimentos, o processo de comparação é explicado e
+os métodos são comparados tanto em relação aos seus resultados quanto as metodologias que aplicam para resolver o 
+problema proposto.
 
 \section{CONCEITOS} 
 
@@ -110,7 +116,7 @@ de referência.
 	O Demons aplica uma dimensão de informação a mais ao modelo de atratores, acrescentando a cada ponto uma direção
 associada ao gradiente da imagem. Chamamos cada um desses pontos de Demon. Com essa informação o algoritmo é capaz
 de identificar pontos dentro e fora do modelo gerado a partir dos Demons e direcionar a força para empurrá-los ou
-atrai-los, respectivamente. Para obtermos o melhor resultado possível adotamos um Demon por pixel/voxel.
+atraí-los, respectivamente. Para obtermos o melhor resultado possível adotamos um Demon por pixel/voxel.
 
 \subsubsection{Aproximação matemática da transformação}
 	O Demons supõe que a transformação não muda a função de densidade, ou seja, ela só movimenta os pixels e não muda
@@ -137,7 +143,8 @@ conta a diferença dos pixeis de R e A para normalizar a equação (4), obtendo 
 \end{equation}
 
 \subsubsection{Implementação}
-	Como a formula (5) é degenerada, não podemos calcular o valor de $\vec{v}$ sem utilizar algum artificio. Para tal,
+	Como a formula (5) é degenerada, ou seja, não é possivel encontrar uma solução analiticamente para ela,
+não podemos calcular o valor de $\vec{v}$ sem utilizar algum artificio. Para tal,
 utilizaremos um algoritmo iterativo. Esse algoritmo recebe como entrada as imagens R e A e um campo vetorial
 com as dimensões de A que contém uma aproximação da transformação aplicada, esse campo pode ser zero. 
 Cada iteração realiza 3 operações:
@@ -150,7 +157,7 @@ Cada iteração realiza 3 operações:
 utilização de um algoritmo de interpolação, já que é extremamente provável que o vetor $\vec{v}$
 leve os pontos para posições não inteiras. A interpolação trilinear já é suficiente para tal.
 
-\subsubsection{Demons Simetrico}
+\subsubsection{Demons Simétrico}
 	O método acima é conhecido como Demons Assimétrico, pois ele só utiliza informações vindas
 da imagem referência. No mesmo artigo, Thirion propõe um outro método, conhecido como Simétrico.
 Nele a equação para o cálculo de $\vec{v}$ leva o gradiente das imagens $A_i$. Ele obtém resultados
@@ -160,19 +167,10 @@ melhores ao custo do cálculo do gradiente de $A_i$ em toda iteração. Sua fór
 					{(\vec{\nabla}r+\vec{\nabla}a)^2*(\vec{\nabla}r^2 + \vec{\nabla}a^2 + 2(a - r)^2)}
 \end{align}
 
-\subsubsection{Implementação Piramidal}
-	Podemos criar uma especie de piramide com as imagens para agilizar e melhorar os resultados do Demons.
-O Demons é executado utilizando uma pequena parcela de Demons distribuídos de forma uniforme sobre as duas imagens.
-O campo vetorial resultante é então passado como entrada para outra instância do Demons que utiliza o dobro de Demons,
-até que se chegue em uma instância que utilize 1 Demon para cada pixel das imagens.
-	Isso faz com que as primeiras execuções do Demons apliquem transformações iguais em um número maior de pixeis,
-assim retirando porções mais globais da deformação. A cada execução nova, o processo se refina mais, retirando porções 
-mais locais. No fim somente as pequenas diferenças são retiradas.
-
 \subsection{Thin Plate Splines}
 	O Thin Plate Splines (TPS) utiliza um outro paradigma para realizar o registro de imagens. Ele utiliza
 características para criar uma função de interpolação que é utilizada para criar a imagem registrada a partir
-da imagem referência. Vários algoritmo podem ser utilizados para adquirir as características que serão usadas
+da imagem referência. Vários algoritmos podem ser utilizados para adquirir as características que serão usadas
 pelo TPS, mas não abordaremos esse assunto pois ele foge do escopo do trabalho. Assumimos no inicio da sua
 execução que 2 conjuntos de características existem, um para cada imagem, e que uma correspondência entre
 eles já é estabelecida.
@@ -181,7 +179,7 @@ eles já é estabelecida.
 o TPS cria uma função que mapeia exatamente cada característica da imagem referência na sua
 correspondente na imagem alvo e que é capaz de interpolar os pontos restantes para a imagem final. Para realizar
 essa tarefa é utilizada uma função que define uma superfície que sofre a ação de pesos centrados nas
-características da imagem referência. A superfície é definida pela seguinte equação:
+características da imagem referência. A superfície é definida pela seguinte equação\cite{bookstein1989principal}:
 
 \begin{align}
 	f(x,y) = A_0 + A_1x + A_2y + \sum_{i=0}^n F_i r_i^2 ln r_i^2
@@ -210,8 +208,8 @@ ele não se mova. As equações $\sum_{i=1}^n F_ix = 0$ e $\sum_{i=1}^n F_iy = 0
 encontradas, podemos aplicar as funções de interpolação para desenhar a imagem final.
 
 \section{Experimentos}
-	Para os experimentos uma das imagens padrão do software BioImage foi utilizada. Aplicamos três deformações
-diferentes nessa imagem. A primeira é dada por:
+	Para os experimentos uma das imagens padrão do software BioImage\cite{papademetris2005bioimage} foi utilizada.
+As deformações aplicadas a imagem de teste foram baseadas nas encontradas no artigo escrito por Zargorchev\cite{zagorchev2006comparative}. A primeira delas é:
 \begin{align}
 \begin{split}
 	X &= x + 50(x-x_c)/r \\
@@ -219,31 +217,114 @@ diferentes nessa imagem. A primeira é dada por:
 \end{split} 
 \end{align}
 
-Onde $x_c$ e $y_c$ são o número de linhas e colunas divididos por 2 respectivamente e $r = \sqrt{(x-xc)^2 + (y-yc)^2}$.
+Onde $x_c$ e $y_c$ são o número de linhas e colunas divididos por 2 respectivamente e $r = \sqrt{(x-x_c)^2 + (y-y_c)^2}$.
 Essa equação cria uma destorção grande no centro da imagem e que diminui ao chegar perto dos cantos. A próxima é:
 
 \begin{align}
 \begin{split}
 	X &= x - 8sin(x/32) \\
 	Y &= y + 4cos(x/16)
-\end{split} 
+\end{split}  	
 \end{align}
 
-Ela aplica uma distorção senoidal na imagem referência. A última acrescenta um termo linear na equação acima:
+Ela aplica uma distorção senoidal na imagem referência. A última é uma combinação das duas acima:
 
 \begin{align}
 \begin{split}
-	X &= 0.7x - 8sin(x/32) - y + 3 \\
-	Y &= 0.9x + 0.8 y + 4cos(x/16) + 5
+	X &= x-8sin(y/16) + 50(x-x_c)/r \\
+	Y &= y+4cos(x/32) + 50(y-y_c)/r
 \end{split} 
 \end{align}
 
+	Ainda sobre os experimentos, as características necessárias para a execução do TPS foram criadas
+utilizando uma grade oito por oito de pontos uniformemente distribuidos para a imagem referência. Já as
+caracteŕísticas da imagem alvo são criadas da mesma maneira, mas passam pela deformação respectiva.
 
+\subsection{Resultados}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/screen.png}
+	  \caption{Imagem Referência}
+	  \label{fig:ref-image}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/movingImageSin.png}
+	  \caption{Imagem Deformada Senoidal}
+	  \label{fig:sin-image}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/movingImageDist.png}
+	  \caption{Imagem Deformada pela Distância Inversa}
+	  \label{fig:dist-image}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/movingImageSinDist.png}
+	  \caption{Imagem Deformada Combinada}
+	  \label{fig:sindist-image} 
+	\end{subfigure} \\
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultSin.png}
+	  \caption{Imagem Resultante Senoidal pelo TPS}
+	  \label{fig:sin-image-tps} 
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultDist.png}
+	  \caption{Imagem Resultante pela Distância Inversa pelo TPS}
+	  \label{fig:dist-image-tps}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultDistSin.png}
+	  \caption{Imagem Resultante pela Deformação Combinada pelo TPS}
+	  \label{fig:sindist-image-tps} 
+	\end{subfigure} \\
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultSinDemon.png}
+	  \caption{Imagem Resultante Senoidal pelo Demon}
+	  \label{fig:sin-image-demon}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultDistDemons.png}
+	  \caption{Imagem Resultante pela Distância Inversa pelo Demon}
+	  \label{fig:dist-image-demon}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.16\textwidth}
+	  \includegraphics[width=\textwidth]{../images/resultSinDistDemon.png}
+	  \caption{Imagem Resultante pela Deformação Combinada pelo Demon}
+	  \label{fig:sindist-image-demon}
+	\end{subfigure}
+\end{figure}
+	
+\subsection{Resultados}
+	Os resultados são bastante distintos entre os dois algoritmos, principalmente nas duas últimas deformações, que
+aplicam uma deformação não uniforme nos pontos. O TPS conseguiu registrar boa parte da imagem. A deformação aplicada ao
+centro foi muito intensa, logo era esperado a baixa eficácia dos algoritmos nessa região, porém o TPS se mostrou melhor
+ao Demons nas regiões entorno do centro, conseguindo registrar a imagem com um certo grau de aceitação. As bordas da imagem
+ficaram com uma qualidade menor dado o método de geração das características. Quando a grade uniforme passa pela deformação, 
+várias característcas ficam aglomeradas nas bordas da imagem, o que compromete o resultado nesse caso.
 
-% \bibliography{bibliografia}   %>>>> bibliography data in report.bib
-% \bibliographystyle{spiebib}   %>>>> makes bibtex use spiebib.bst
+	Já o Demons obteve um resultado com uma qualidade inferior dado a fórmula usada para cálcular o campo vetorial.
+Como vimos em (6), o Demons cálcula a direção da deformação usando o gradiente das duas imagens. Se a transformação
+aplicada criar regiões com uma grande variação de gradiente o método está fadado a criar vetores que apontam para direções
+que não são ótimas, gerando os resultados acima vistos.
 
+	A grande diferença entre o TPS e o Demons é observada no resultado com a melhor qualidade, o da deformação
+senoidal. Essa deformação foi regular e as características foram geradas sem problemas, o que fez dela o caso ótimo
+para os dois algoritmos. O TPS foi capaz de registrar quase que cem porcento da imagem, mesmo que acresentando um
+serrilhamento resultande da interporlação. O Demons obteve um resultado um pouco pior. Os contornos da imagem foram
+registrados com sucesso, contudo vários artefatos, principalmente na caixa crâniana, foram gerados, e em vários pontos
+resíduos da deformação senoidal são encontrados.
 
+\section{Conclusão}
+	O TPS gerou os melhores resultados, ainda que utilizando em alguns casos um conjunto ruim de características. Dado 
+o seu método que não utiliza as intensidades dos pixeis e sim marcações que indicam regiões com correspondências de 
+características ele é capaz de registrar deformações que além de mover os pontos modifiquem suas intensidades. O Demons
+obteve um resultado pior mas ele conta com a velocidade. Sua execução levou em torno um centésimo do levado pelo TPS. Os 
+próximos passos para esse trabalho são trabalhar com a aceleração desses métodos, todos
+facilmente paralelizáveis, tanto o TPS na solução do sistema linear quanto na aplicação da função de transformação, e o 
+Demons com sua arquitetura altamente paralelizável, dado que os seus cálculos são totalmente locais a um pixel
+\bibliography{bibliografia}   %>>>> bibliography data in report.bib
+\bibliographystyle{spiebib}   %>>>> makes bibtex use spiebib.bst
 
 \end{document} 
 
