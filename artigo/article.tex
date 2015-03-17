@@ -66,31 +66,32 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \begin{abstract}
-O registro de imagens é um passo muito utilizado dentro da área de visão computacional, ainda mais no processamento de imagens médicas.
-Usado para auxiliar o médico no processo cirúrgico retirando as deformações geradas pelos tecidos do corpo ou em estudos populacionais
-alinhando as imagens de vários indivíduos diferentes, retirando as diferenças morfológicas entre eles. Esse estudo tem como objetivo
-a avaliação e comparação de dois métodos conhecidos na literatura de registro médico, o Demons e o Thin Plate Splines.
+O registro de imagens é um passo muito utilizado dentro da área de visão computacional, ainda mais no processamento de 
+imagens médicas. Usado para auxiliar o médico no processo cirúrgico retirando as deformações geradas pelos tecidos do 
+corpo ou em estudos populacionais alinhando as imagens de vários indivíduos diferentes, retirando as diferenças 
+morfológicas entre eles. Esse estudo tem como objetivo a avaliação e comparação de dois métodos conhecidos na literatura 
+de registro médico, o Demons e o Thin Plate Splines.
 \end{abstract}
 
 %>>>> Include a list of keywords after the abstract 
 
-\keywords{registro, demons, tps}
+\keywords{registro, demons, thin plate splines}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUÇÃO}
 \label{sec:intro}  % \label{} allows reference to this section
 
-O registro de imagens já é um problema muito bem firmado e com várias soluções para problemas\cite{brown1992survey} como a junção de duas
-imagens de um mesmo objeto ou cena que foram adquiridas em ângulos diferentes, ou a reversão de algum tipo de 
-distorção, natural ou não, que uma imagem possa vir a sofrer. Os algoritmo de registro são amplamente aplicados
+O registro de imagens já é um problema bem firmado e com várias soluções para problemas\cite{brown1992survey} como a 
+junção de duas imagens de um mesmo objeto ou cena que foram adquiridas em ângulos diferentes, ou a reversão de algum 
+tipo de distorção, natural ou não, que uma imagem possa vir a sofrer. Os algoritmo de registro são amplamente aplicados
 em várias áreas de pesquisa em visão computacional, como em Imagens Médicas, com o objetivo de reverter os
 movimentos naturais do corpo entre tomadas de imagens de um paciente, ou em Reconhecimento de Padrões, onde o
 registro é aplicado para unificar várias imagens obtidas de um satélite para formar um mapa por exemplo.
 
-Esse trabalho tem como foco a comparação dos métodos \textit{Demons}\cite{thirion1995fast} e \textit{Thin Plate Splines}\cite{goshtasby1988registration} (TPS) para recuperar
-deformações aplicadas a imagens médicas. Ambos são voltados para a recuperação de deformações não-rígidas, algo 
-extremamente comum em imagens médicas, o simples ato de respirar entre as tomadas de uma ressonância magnética gera
-uma deformação não-rígida na imagem final. 
+Esse trabalho tem como objetivo a comparação dos métodos \textit{Demons}\cite{thirion1995fast} e 
+\textit{Thin Plate Splines}\cite{goshtasby1988registration} (TPS) para recuperar deformações aplicadas a imagens médicas. 
+Ambos são voltados para a recuperação de deformações não-rígidas, algo extremamente comum em imagens médicas, 
+o simples ato de respirar entre as tomadas de uma ressonância magnética gera uma deformação não-rígida na imagem final. 
 
 O algoritmo de registro recebe como entrada duas imagens, a imagem de referência (R) e a alvo (A). A imagem referência
 é usada para estimar os parâmetros da transformação que foi aplicada a imagem alvo, e assim a transformação
@@ -130,8 +131,8 @@ suas intensidades. A equação seguinte resume isso:
 	\frac{\partial i}{\partial y} \frac{\partial y}{\partial t} = - \frac{\partial i}{\partial t}
 \end{align}
 	Supondo que as duas imagens que temos diferem de uma unidade de tempo $\partial i/\partial t = 
-r-a$, \textit{r} e \textit{a} as intensidades de R e A respectivamente e que a velocidade instantânea $\vec{v} = (dx/dt,dy/dt)$ é aplicada a cada pixel para movê-lo de A para R, 
-chegamos a equação:
+r-a$, \textit{r} e \textit{a} as intensidades de R e A respectivamente e que a velocidade instantânea 
+$\vec{v} = (dx/dt,dy/dt)$ é aplicada a cada pixel para movê-lo de A para R, chegamos a equação:
 \begin{align}
 	\vec{v}*\vec{\nabla}r = a - r, \ \text{onde} \ \vec{\nabla} r \ \text{é o gradiente de R}
 \end{align}
@@ -209,7 +210,8 @@ encontradas, podemos aplicar as funções de interpolação para desenhar a imag
 
 \section{Experimentos}
 	Para os experimentos uma das imagens padrão do software BioImage\cite{papademetris2005bioimage} foi utilizada.
-As deformações aplicadas a imagem de teste foram baseadas nas encontradas no artigo escrito por Zargorchev\cite{zagorchev2006comparative}. A primeira delas é:
+As deformações aplicadas a imagem de teste foram baseadas nas encontradas no artigo escrito por 
+Zargorchev\cite{zagorchev2006comparative}. A primeira delas é:
 \begin{align}
 \begin{split}
 	X &= x + 50(x-x_c)/r \\
@@ -238,7 +240,7 @@ Ela aplica uma distorção senoidal na imagem referência. A última é uma comb
 
 	Ainda sobre os experimentos, as características necessárias para a execução do TPS foram criadas
 utilizando uma grade oito por oito de pontos uniformemente distribuidos para a imagem referência. Já as
-caracteŕísticas da imagem alvo são criadas da mesma maneira, mas passam pela deformação respectiva.
+características da imagem alvo são criadas da mesma maneira, mas passam pela deformação respectiva.
 
 \subsection{Resultados}
 \begin{figure}[h]
@@ -299,14 +301,14 @@ caracteŕísticas da imagem alvo são criadas da mesma maneira, mas passam pela 
 	Os resultados são bastante distintos entre os dois algoritmos, principalmente nas duas últimas deformações, que
 aplicam uma deformação não uniforme nos pontos. O TPS conseguiu registrar boa parte da imagem. A deformação aplicada ao
 centro foi muito intensa, logo era esperado a baixa eficácia dos algoritmos nessa região, porém o TPS se mostrou melhor
-ao Demons nas regiões entorno do centro, conseguindo registrar a imagem com um certo grau de aceitação. As bordas da imagem
-ficaram com uma qualidade menor dado o método de geração das características. Quando a grade uniforme passa pela deformação, 
-várias característcas ficam aglomeradas nas bordas da imagem, o que compromete o resultado nesse caso.
+ao Demons nas regiões entorno do centro, conseguindo registrar a imagem com um certo grau de aceitação. As bordas da 
+imagem ficaram com uma qualidade menor dado o método de geração das características. Quando a grade uniforme passa pela 
+deformação, várias característcas ficam aglomeradas nas bordas da imagem, o que compromete o resultado nesse caso.
 
 	Já o Demons obteve um resultado com uma qualidade inferior dado a fórmula usada para cálcular o campo vetorial.
 Como vimos em (6), o Demons cálcula a direção da deformação usando o gradiente das duas imagens. Se a transformação
-aplicada criar regiões com uma grande variação de gradiente o método está fadado a criar vetores que apontam para direções
-que não são ótimas, gerando os resultados acima vistos.
+aplicada criar regiões com uma grande variação de gradiente o método está fadado a criar vetores que apontam para 
+direções que não são ótimas, gerando os resultados acima vistos.
 
 	A grande diferença entre o TPS e o Demons é observada no resultado com a melhor qualidade, o da deformação
 senoidal. Essa deformação foi regular e as características foram geradas sem problemas, o que fez dela o caso ótimo
